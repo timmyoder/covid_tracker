@@ -1,0 +1,45 @@
+{% extends 'base.jinja2' %}
+
+{% block subtitle %}{{ location_data.name }} County Covid Cases{% endblock subtitle %}
+
+{% block content %}
+    <table>
+        <tr>
+            <th>&nbsp;</th>
+            <th scope="col">All time</th>
+            <th scope="col">All time - per 100k</th>
+            <th scope="col">Last 2 Weeks</th>
+            <th scope="col">Last 2 Weeks - per 100k</th>
+            <th scope="col">{{ location_data.last_date }}</th>
+            <th scope="col">{{ location_data.last_date }} - per 100k</th>
+        </tr>
+
+        <tr>
+            <th scope="row">Cases</th>
+            <th>{{ location_data.cases_total }}</th>
+            <th>{{ location_data.cases_total_100 }}</th>
+            <th>{{ location_data.cases_2wk }}</th>
+            <th>{{ location_data.cases_2wk_100 }}</th>
+            <th>{{ location_data.cases_yesterday }}</th>
+            <th>{{ location_data.cases_yesterday_100 }}</th>
+        </tr>
+
+        <tr>
+            <th scope="row">Deaths</th>
+            <th>{{ location_data.deaths_total }}</th>
+            <th>{{ location_data.deaths_total_100 }}</th>
+            <th>{{ location_data.deaths_2wk }}</th>
+            <th>{{ location_data.deaths_2wk_100 }}</th>
+            <th>{{ location_data.deaths_yesterday }}</th>
+            <th>{{ location_data.deaths_yesterday_100 }}</th>
+        </tr>
+    </table>
+
+    {{ location_data.case_fig_html|safe }}
+    {{ location_data.recent_cases_fig_html|safe }}
+    {{ location_data.death_fig_html|safe }}
+    {{ location_data.recent_deaths_fig_html|safe }}
+    {{ location_data.hospital_fig_html|safe }}
+    {{ location_data.hospital_avail_fig_html|safe }}
+
+{% endblock content %}

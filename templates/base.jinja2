@@ -1,0 +1,16 @@
+{% load static %}
+<html>
+<head>
+<title>Yoder Covid Tracker</title>
+</head>
+<body>
+<link rel="stylesheet" type="text/css" href="{% static 'covid_style.css' %}">
+    <nav>
+        <a class="nav-link " href={%url "home"%}>Home</a>
+        <a class="nav-link " href={%url "philly"%}>Philly</a>
+        <a class="nav-link " href={%url "somerset"%}>Somerset</a>
+    </nav>
+	<h1>{% block subtitle %} {% endblock subtitle %}</h1>
+	{% block content %} {% endblock content %}
+</body>
+</html>
