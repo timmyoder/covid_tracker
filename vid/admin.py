@@ -1,3 +1,4 @@
 from django.contrib import admin
+from vid.models import PennCaseData
 
-# Register your models here.
+admin.site.register(PennCaseData)
