@@ -35,16 +35,16 @@ class PennHospitals(models.Model):
     county = models.CharField(max_length=128)
     date = models.DateTimeField()
 
-    aii_avail = models.IntegerField()
-    aii_total = models.IntegerField()
-    icu_avail = models.IntegerField()
-    icu_total = models.IntegerField()
-    med_avail = models.IntegerField()
-    med_total = models.IntegerField()
-    covid_patients = models.IntegerField()
-    aii_percent = models.FloatField()
-    icu_percent = models.FloatField()
-    med_percent = models.FloatField()
+    aii_avail = models.IntegerField(null=True)
+    aii_total = models.IntegerField(null=True)
+    icu_avail = models.IntegerField(null=True)
+    icu_total = models.IntegerField(null=True)
+    med_avail = models.IntegerField(null=True)
+    med_total = models.IntegerField(null=True)
+    covid_patients = models.IntegerField(null=True)
+    aii_percent = models.FloatField(null=True)
+    icu_percent = models.FloatField(null=True)
+    med_percent = models.FloatField(null=True)
 
     class Meta:
         unique_together = (("date", "county"),)
@@ -72,10 +72,6 @@ class CasesDeathsNTY(models.Model):
     fips = models.CharField(max_length=128, null=True)
     cases = models.IntegerField(null=True)
     deaths = models.IntegerField(null=True)
-    confirmed_cases = models.IntegerField(null=True)
-    confirmed_deaths = models.IntegerField(null=True)
-    probable_cases = models.IntegerField(null=True)
-    probable_deaths = models.IntegerField(null=True)
 
     class Meta:
         unique_together = (("date", "fips"),)

@@ -19,9 +19,8 @@ class Command(BaseCommand):
         """
         Call the function to import data
         """
-        # for api in options['api']:
-        PennCases.objects.all().delete()
-
         vid.get_data.refresh_penn_cases()
+        vid.get_data.refresh_penn_deaths()
+        vid.get_data.refresh_penn_hospital()
 
 

@@ -8,7 +8,7 @@ import io
 from django.utils.timezone import make_aware
 from django.db.utils import IntegrityError
 
-from vid.models import Places, PennCases, CasesDeathsNTY
+from vid.models import Places, PennCases, PennDeaths, PennHospitals, CasesDeathsNTY
 
 api_key = '776e4ec57ee346d6a0a2a4abb6b006a8'
 act_now_api = f'https://api.covidactnow.org/v2/county/42111.json?apiKey={api_key}'
@@ -80,36 +80,133 @@ def refresh_penn_cases():
 
         try:
             PennCases.objects.bulk_create(objects)
-            print(f'{case.get("county")} success')
+            # noinspection PyUnboundLocalVariable
+            print(f'{case.get("county")} cases success')
         except IntegrityError:
-            print(f'{case.get("county")} failure')
+            print(f'{case.get("county")} cases failure')
+
+
+def refresh_penn_deaths():
+    PennDeaths.objects.all().delete()
+
+    county_data = []
+    for county in ['Somerset', 'Philadelphia']:
+        deaths = requests.get(f'{penn_deaths}?county={county}').json()
+        county_data.append(deaths)
+
+    for deaths in county_data:
+        objects = []
+        for death in deaths:
+            date = datetime.strptime(death.get('date'), "%Y-%m-%dT%H:%M:%S.%f")
+            aware_date = make_aware(date)
+            obj = PennDeaths(deaths=float(death.get('deaths')),
+                             county=death.get('county'),
+                             date=aware_date,
+                             deaths_cume=float(death.get('deaths_cume')),
+                             population=float(death.get('population')),
+                             deaths_rate=float(death.get('deaths_rate')),
+                             deaths_cume_rate=float(death.get('deaths_cume_rate')),
+                             )
+
+            objects.append(obj)
+
+        try:
+            PennDeaths.objects.bulk_create(objects)
+            # noinspection PyUnboundLocalVariable
+            print(f'{death.get("county")} deaths success')
+        except IntegrityError:
+            print(f'{death.get("county")} deaths failure')
+
+
+def refresh_penn_hospital():
+    PennHospitals.objects.all().delete()
+
+    county_data = []
+    for county in ['Somerset', 'Philadelphia']:
+        hospital_data = requests.get(f'{penn_hospital}?county={county}').json()
+        county_data.append(hospital_data)
+
+    for hospital_data in county_data:
+        objects = []
+        for entry in hospital_data:
+            date = datetime.strptime(entry.get('date'), "%Y-%m-%dT%H:%M:%S.%f")
+            aware_date = make_aware(date)
+            obj = PennHospitals(county=entry.get('county'),
+                                date=aware_date,
+                                aii_avail=float(entry.get('aii_avail', 0)),
+                                aii_total=float(entry.get('aii_total', 0)),
+                                icu_avail=float(entry.get('icu_avail', 0)),
+                                icu_total=float(entry.get('icu_total', 0)),
+                                med_avail=float(entry.get('med_avail', 0)),
+                                med_total=float(entry.get('med_total', 0)),
+                                covid_patients=float(entry.get('covid_patients', 0)),
+                                aii_percent=float(entry.get('aii_percent', 0)),
+                                icu_percent=float(entry.get('icu_percent', 0)),
+                                med_percent=float(entry.get('med_percent', 0))
+                                )
+
+            objects.append(obj)
+
+        try:
+            PennHospitals.objects.bulk_create(objects)
+            # noinspection PyUnboundLocalVariable
+            print(f'{entry.get("county")} hospital success')
+        except IntegrityError:
+            print(f'{entry.get("county")} hospital failure')
 
 
 def load_nyt():
+    # todo: speed up. pd.to_sql, or manage.py loaddata
+    nyt_data = requests.get(nyt_timeseries).content
+    nyt_data = pd.read_csv(io.BytesIO(nyt_data),
+                           encoding='utf8',
+                           sep=",",
+                           parse_dates=['date'],
+                           dtype={'fips': str})
+    nyt_data = nyt_data.where(pd.notnull(nyt_data), None)
 
-    nyt_data = requests.get('https://raw.githubusercontent.com/nytimes'
-                            '/covid-19-data/master/live/us-counties.csv').content
-    nyt = pd.read_csv(io.BytesIO(nyt_data), encoding='utf8', sep=",", parse_dates=['date'])
-    nyt = nyt.where(pd.notnull(nyt), None)
     nyt_cases = []
 
     CasesDeathsNTY.objects.all().delete()
 
-    for index, row in nyt.iterrows():
-        nyt_cases.append(CasesDeathsNTY(date=row['date'],
+    # noinspection DuplicatedCode
+    for index, row in nyt_data.iterrows():
+        aware_date = make_aware(row['date'])
+        nyt_cases.append(CasesDeathsNTY(date=aware_date,
                                         county=row['county'],
                                         state=row['state'],
                                         fips=row['fips'],
                                         cases=row['cases'],
                                         deaths=row['deaths'],
-                                        confirmed_cases=row['confirmed_cases'],
-                                        confirmed_deaths=row['confirmed_deaths'],
-                                        probable_cases=row['probable_cases'],
-                                        probable_deaths=row['probable_deaths']
                                         ))
 
-    # try:
-    CasesDeathsNTY.objects.bulk_create(nyt_cases)
-    #     print('nyt data failed to import')
-    # except IntegrityError:
-    #     print('nyt data failed to import')
+    try:
+        CasesDeathsNTY.objects.bulk_create(nyt_cases)
+        print('nyt data successfully imported')
+    except IntegrityError:
+        print('nyt data failed to import')
+
+    nyt_live_data = requests.get(nyt_live).content
+    nyt_live_data = pd.read_csv(io.BytesIO(nyt_live_data),
+                                encoding='utf8',
+                                sep=",",
+                                parse_dates=['date'],
+                                dtype={'fips': str})
+    nyt_live_data = nyt_live_data.where(pd.notnull(nyt_live_data), None)
+    nyt_cases_live = []
+
+    for index, row in nyt_live_data.iterrows():
+        aware_date = make_aware(row['date'])
+        nyt_cases_live.append(CasesDeathsNTY(date=aware_date,
+                                             county=row['county'],
+                                             state=row['state'],
+                                             fips=row['fips'],
+                                             cases=row['cases'],
+                                             deaths=row['deaths'],
+                                             ))
+
+    try:
+        CasesDeathsNTY.objects.bulk_create(nyt_cases_live)
+        print('nyt live data successfully imported')
+    except IntegrityError:
+        print('nyt live data failed to import')
