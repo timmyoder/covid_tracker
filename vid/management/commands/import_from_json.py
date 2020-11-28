@@ -7,7 +7,7 @@ from here: https://github.com/NEbere/data-import
 from django.core.management.base import BaseCommand
 
 import vid.get_data
-from vid.models import PennCaseDataDOH
+from vid.models import PennCases
 
 
 class Command(BaseCommand):
@@ -20,7 +20,7 @@ class Command(BaseCommand):
         Call the function to import data
         """
         # for api in options['api']:
-        PennCaseDataDOH.objects.all().delete()
+        PennCases.objects.all().delete()
 
         vid.get_data.refresh_penn_cases()
 
