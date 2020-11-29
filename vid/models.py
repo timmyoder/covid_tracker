@@ -83,8 +83,9 @@ class MetricsActNow(models.Model):
     county = models.CharField(max_length=128)
     state = models.CharField(max_length=128)
     fips = models.CharField(max_length=128)
-    testPositivityRatio = models.FloatField()
-    infectionRate = models.FloatField()
+    population = models.IntegerField()
+    testPositivityRatio = models.FloatField(null=True)
+    infectionRate = models.FloatField(null=True)
 
     class Meta:
         unique_together = (("date", "fips"),)

@@ -4,14 +4,20 @@ import pandas as pd
 from datetime import datetime
 import time
 import io
+import json
 
 from django.utils.timezone import make_aware
 from django.db.utils import IntegrityError
 
-from vid.models import Places, PennCases, PennDeaths, PennHospitals, CasesDeathsNTY
+from vid.models import (Places,
+                        PennCases,
+                        PennDeaths,
+                        PennHospitals,
+                        CasesDeathsNTY,
+                        MetricsActNow)
 
 api_key = '776e4ec57ee346d6a0a2a4abb6b006a8'
-act_now_api = f'https://api.covidactnow.org/v2/county/42111.json?apiKey={api_key}'
+act_now_api = f'https://api.covidactnow.org/v2/counties.timeseries.json?apiKey={api_key}'
 
 penn_cases = 'https://data.pa.gov/resource/j72v-r42c.json'
 penn_deaths = 'https://data.pa.gov/resource/fbgu-sqgp.json'
@@ -22,6 +28,15 @@ oklahoma_files = 'https://storage.googleapis.com/' \
 
 nyt_timeseries = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv'
 nyt_live = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv'
+
+focus_fips = {'42101': 'philly',
+              '42111': 'somerset',
+              '53033': 'king',
+              '17043': 'dupage',
+              '17089': 'kane',
+              '40027': 'cleveland',
+              '40109': 'oklahoma',
+              '06037': 'los angeles'}
 
 
 def pull_penn_data(api, county):
@@ -155,6 +170,7 @@ def refresh_penn_hospital():
             print(f'{entry.get("county")} hospital failure')
 
 
+# noinspection DuplicatedCode
 def load_nyt():
     # todo: speed up. pd.to_sql, or manage.py loaddata
     nyt_data = requests.get(nyt_timeseries).content
@@ -169,7 +185,6 @@ def load_nyt():
 
     CasesDeathsNTY.objects.all().delete()
 
-    # noinspection DuplicatedCode
     for index, row in nyt_data.iterrows():
         aware_date = make_aware(row['date'])
         nyt_cases.append(CasesDeathsNTY(date=aware_date,
@@ -210,3 +225,37 @@ def load_nyt():
         print('nyt live data successfully imported')
     except IntegrityError:
         print('nyt live data failed to import')
+
+
+def load_actnow(fips):
+
+    api_single = f'https://api.covidactnow.org/v2/county/{fips}.timeseries.json?apiKey={api_key}'
+    raw = requests.get(api_single).content
+    raw_dict = json.loads(raw.decode('utf-8'))
+
+    fips_pulled = raw_dict['fips']
+
+    population = raw_dict['population']
+    state = raw_dict['state']
+    county = raw_dict['county']
+
+    metrics = pd.DataFrame(raw_dict['metricsTimeseries'])
+
+    act_now_objects = []
+    for index, row in metrics.iterrows():
+        dumb_date = datetime.strptime(row['date'], "%Y-%m-%d")
+        aware_date = make_aware(dumb_date)
+        act_now_objects.append(MetricsActNow(date=aware_date,
+                                             state=state,
+                                             county=county,
+                                             fips=fips_pulled,
+                                             population=population,
+                                             testPositivityRatio=row['testPositivityRatio'],
+                                             infectionRate=row['infectionRate']
+                                             ))
+
+    try:
+        MetricsActNow.objects.bulk_create(act_now_objects)
+        print(f'CovidActNow data for {county} successfully imported')
+    except IntegrityError:
+        print(f'CovidActNow data for {county} failed to import')
