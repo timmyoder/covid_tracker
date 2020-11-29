@@ -35,11 +35,15 @@
         </tr>
     </table>
 
+    <p>The most recent calculated testing positivity rate is
+        {{ location_data.positive_rate }}</p>
+
     {{ location_data.case_fig_html|safe }}
     {{ location_data.recent_cases_fig_html|safe }}
     {{ location_data.death_fig_html|safe }}
     {{ location_data.recent_deaths_fig_html|safe }}
     {{ location_data.hospital_fig_html|safe }}
     {{ location_data.hospital_avail_fig_html|safe }}
+    {{ location_data.r_fig_html|safe }}
 
 {% endblock content %}

@@ -259,3 +259,10 @@ def load_actnow(fips):
         print(f'CovidActNow data for {county} successfully imported')
     except IntegrityError:
         print(f'CovidActNow data for {county} failed to import')
+
+
+def load_all_actnow():
+    MetricsActNow.objects.all().delete()
+
+    for fips in focus_fips:
+        load_actnow(fips=fips)

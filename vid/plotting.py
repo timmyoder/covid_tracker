@@ -1,7 +1,9 @@
 import matplotlib
 import numpy as np
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 plt.ioff()
 import mpld3
 
@@ -109,6 +111,25 @@ def plot_hospitals(covid_daily,
              color='tab:red',
              lw=3,
              label='7 Day Average - Covid Patients')
+    plt.title(titles['figure'],
+              fontdict=title_font)
+    plt.ylabel(titles['y'],
+               fontdict=axis_font)
+    fig.autofmt_xdate(rotation=45)
+    plt.legend()
+    html_str = mpld3.fig_to_html(fig)
+
+    return html_str
+
+
+def plot_rvalue(r_series, titles):
+    fig = plt.figure()
+
+    plt.plot(r_series.index,
+             r_series,
+             lw=3,
+             color='tab:orange')
+
     plt.title(titles['figure'],
               fontdict=title_font)
     plt.ylabel(titles['y'],

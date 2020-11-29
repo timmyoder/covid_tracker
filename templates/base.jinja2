@@ -7,8 +7,14 @@
 <link rel="stylesheet" type="text/css" href="{% static 'covid_style.css' %}">
     <nav>
         <a class="nav-link " href={%url "home"%}>Home</a>
-        <a class="nav-link " href={%url "philly"%}>Philly</a>
-        <a class="nav-link " href={%url "somerset"%}>Somerset</a>
+        <a class="nav-link " href={%url "philly"%}>Philly, PA</a>
+        <a class="nav-link " href={%url "somerset"%}>Somerset, PA</a>
+        <a class="nav-link " href={%url "king"%}>King, WA</a>
+        <a class="nav-link " href={%url "oklahoma"%}>Oklahoma, OK</a>
+        <a class="nav-link " href={%url "cleveland"%}>Cleveland, OK</a>
+        <a class="nav-link " href={%url "kane"%}>Kane, IL</a>
+        <a class="nav-link " href={%url "dupage"%}>Dupage, IL</a>
+
     </nav>
 	<h1>{% block subtitle %} {% endblock subtitle %}</h1>
 	{% block content %} {% endblock content %}
