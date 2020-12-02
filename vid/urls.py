@@ -1,5 +1,5 @@
 from django.urls import path
-from vid.views import somerset, philly, home, king, kane, dupage, okc, cleveland
+from vid.views import somerset, philly, home, king, kane, dupage, okc, cleveland, los_angeles
 
 urlpatterns = [
     path("", home, name="home"),
@@ -10,4 +10,5 @@ urlpatterns = [
     path("oklahoma/", okc, name="oklahoma"),
     path("dupage/", dupage, name="dupage"),
     path("cleveland/", cleveland, name="cleveland"),
+    path("la/", los_angeles, name="los_angeles"),
 ]

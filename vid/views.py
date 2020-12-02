@@ -124,5 +124,21 @@ def cleveland(request):
     return render(request, "location_page.jinja2", {"location_data": cleveland_page})
 
 
+def los_angeles(request):
+    cases, deaths, r_value, positive_rate = location_data('Los Angeles', 'California')
+
+    los_angeles_page = LocationPage('Los Angeles County, CA',
+                                    cases=cases,
+                                    deaths=deaths,
+                                    r_value=r_value,
+                                    positive_rate=positive_rate)
+    with lock:
+        los_angeles_page.create_case_plots()
+        los_angeles_page.create_death_plots()
+        los_angeles_page.create_r_plot()
+
+    return render(request, "location_page.jinja2", {"location_data": los_angeles_page})
+
+
 def home(request):
     return render(request, 'home.jinja2')
