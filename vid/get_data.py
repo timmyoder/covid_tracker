@@ -177,11 +177,13 @@ def load_nyt():
     r = requests.get(nyt_timeseries, stream=True)
     size = 0
     content = io.BytesIO()
-    maxsize = 1000000
+    num_chunks = 0
 
     for chunk in r.iter_content(750000):
         size += len(chunk)
         content.write(chunk)
+        num_chunks += 1
+        print(num_chunks)
     content.seek(0)
 
     # nyt_data = requests.get(nyt_timeseries).content
@@ -191,6 +193,8 @@ def load_nyt():
                            parse_dates=['date'],
                            dtype={'fips': str})
     nyt_data = nyt_data.where(pd.notnull(nyt_data), None)
+
+    print('read nyt data')
 
     nyt_cases = []
 
@@ -205,6 +209,8 @@ def load_nyt():
                                         cases=row['cases'],
                                         deaths=row['deaths'],
                                         ))
+
+    print('created nyt objects')
 
     try:
         CasesDeathsNTY.objects.bulk_create(nyt_cases)
