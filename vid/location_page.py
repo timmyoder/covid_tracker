@@ -17,7 +17,7 @@ class LocationPage:
         self.deaths = deaths
         self.hospital = hospital
         self.r_value = r_value
-        self.positive_rate = positive_rate
+        self.positive_rate = f'{positive_rate*100:.2f}%'
 
         self.last_date = cases.index[-1].date()
         self.recent_cases = cases.iloc[-14:]
@@ -74,9 +74,11 @@ class LocationPage:
         recent_titles = {'figure': f'{self.name} Death Data - Previous Two Weeks',
                          'y': 'Daily Deaths'}
         self.death_fig_html = vid.plotting.plot_deaths(self.deaths.deaths,
+                                                       self.deaths.deaths_avg_new,
                                                        death_titles
                                                        )
         self.recent_deaths_fig_html = vid.plotting.plot_deaths(self.recent_deaths.deaths,
+                                                               self.recent_deaths.deaths_avg_new,
                                                                recent_titles
                                                                )
 

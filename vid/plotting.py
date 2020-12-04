@@ -37,19 +37,33 @@ def plot_cases(case_data, avg_case_data, titles):
     return html_str
 
 
-def plot_deaths(death_data, titles):
+def plot_deaths(death_data, death_ave, titles):
     fig = plt.figure()
 
     plt.bar(death_data.index,
             death_data,
-            lw=3,
-            color='tab:red')
+            color='tab:red',
+            alpha=.6,
+            label='Single Day'
+            )
+
+    average = plt.plot(death_ave,
+                       color='tab:red',
+                       lw=3,
+                       label='7 Day Average')
 
     plt.title(titles['figure'],
               fontdict=title_font)
     plt.ylabel(titles['y'],
                fontdict=axis_font)
     fig.autofmt_xdate(rotation=45)
+    # labels = []
+    # for death in death_ave:
+    #     label = death
+    #     labels.append(str(label))
+    #
+    # mpld3.plugins.connect(fig, mpld3.plugins.PointHTMLTooltip(average[0], labels))
+    plt.legend()
     html_str = mpld3.fig_to_html(fig)
 
     return html_str
@@ -130,12 +144,17 @@ def plot_rvalue(r_series, titles):
              lw=3,
              color='tab:orange')
 
+    plt.plot(r_series.index,
+             np.ones(len(r_series)),
+             alpha=.6,
+             color='tab:gray',
+             linestyle='--')
+
     plt.title(titles['figure'],
               fontdict=title_font)
     plt.ylabel(titles['y'],
                fontdict=axis_font)
     fig.autofmt_xdate(rotation=45)
-    plt.legend()
     html_str = mpld3.fig_to_html(fig)
 
     return html_str

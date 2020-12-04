@@ -79,6 +79,7 @@ def pa_data(county):
 
     deaths = pd.DataFrame(list(PennDeaths.objects.filter(county=county).values()))
     deaths = deaths.set_index('date').sort_index()
+    deaths['deaths_avg_new'] = deaths['deaths'].rolling(window=7).mean()
 
     hospitals = pd.DataFrame(list(PennHospitals.objects.filter(county=county).values()))
     hospitals = hospitals.set_index('date').sort_index()
