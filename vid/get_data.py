@@ -176,7 +176,6 @@ def load_nyt():
 
     CasesDeathsNTY.objects.all().delete()
 
-
     r = requests.get(nyt_timeseries, stream=True)
     size = 0
     content = io.BytesIO()
@@ -197,6 +196,7 @@ def load_nyt():
                            parse_dates=['date'],
                            dtype={'fips': str})
     nyt_data = nyt_data.where(pd.notnull(nyt_data), None)
+    nyt_data = nyt_data[nyt_data['fips'].isin(list(focus_fips.keys()))]
 
     print('read nyt data')
 
@@ -238,6 +238,8 @@ def load_nyt():
                                 parse_dates=['date'],
                                 dtype={'fips': str})
     nyt_live_data = nyt_live_data.where(pd.notnull(nyt_live_data), None)
+    nyt_live_data = nyt_live_data[nyt_live_data['fips'].isin(list(focus_fips.keys()))]
+
     nyt_cases_live = []
 
     for index, row in nyt_live_data.iterrows():
