@@ -1,5 +1,6 @@
 # pycharm stuff
 .idea/
+secret_key.txt
 
 .DS_Store
 
