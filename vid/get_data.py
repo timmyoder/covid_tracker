@@ -174,6 +174,9 @@ def refresh_penn_hospital():
 def load_nyt():
     # todo: speed up. pd.to_sql, or manage.py loaddata
 
+    CasesDeathsNTY.objects.all().delete()
+
+
     r = requests.get(nyt_timeseries, stream=True)
     size = 0
     content = io.BytesIO()
@@ -183,8 +186,9 @@ def load_nyt():
         size += len(chunk)
         content.write(chunk)
         num_chunks += 1
-        print(num_chunks)
     content.seek(0)
+
+    print('received nyt data')
 
     # nyt_data = requests.get(nyt_timeseries).content
     nyt_data = pd.read_csv(content,
@@ -196,27 +200,36 @@ def load_nyt():
 
     print('read nyt data')
 
-    nyt_cases = []
+    chunk_size = round(len(nyt_data) / (num_chunks + 1))
+    current_index = 0
 
-    CasesDeathsNTY.objects.all().delete()
+    while current_index < len(nyt_data) - 1:
+        end_index = current_index + chunk_size
+        if end_index > len(nyt_data) - 1:
+            chunks_dataframe = nyt_data.iloc[current_index:]
+        else:
+            chunks_dataframe = nyt_data[current_index:end_index]
 
-    for index, row in nyt_data.iterrows():
-        aware_date = make_aware(row['date'])
-        nyt_cases.append(CasesDeathsNTY(date=aware_date,
-                                        county=row['county'],
-                                        state=row['state'],
-                                        fips=row['fips'],
-                                        cases=row['cases'],
-                                        deaths=row['deaths'],
-                                        ))
+        current_index += chunk_size
 
-    print('created nyt objects')
+        nyt_cases = []
+        for index, row in chunks_dataframe.iterrows():
+            aware_date = make_aware(row['date'])
+            nyt_cases.append(CasesDeathsNTY(date=aware_date,
+                                            county=row['county'],
+                                            state=row['state'],
+                                            fips=row['fips'],
+                                            cases=row['cases'],
+                                            deaths=row['deaths'],
+                                            ))
 
-    try:
-        CasesDeathsNTY.objects.bulk_create(nyt_cases)
-        print('nyt data successfully imported')
-    except IntegrityError:
-        print('nyt data failed to import')
+        print(f'created nyt objects in pd ending at index {end_index} of {len(nyt_data)}')
+
+        try:
+            CasesDeathsNTY.objects.bulk_create(nyt_cases)
+            print('nyt data successfully imported')
+        except IntegrityError:
+            print('nyt data failed to import')
 
     nyt_live_data = requests.get(nyt_live).content
     nyt_live_data = pd.read_csv(io.BytesIO(nyt_live_data),
