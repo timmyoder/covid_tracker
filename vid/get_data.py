@@ -173,8 +173,19 @@ def refresh_penn_hospital():
 # noinspection DuplicatedCode
 def load_nyt():
     # todo: speed up. pd.to_sql, or manage.py loaddata
-    nyt_data = requests.get(nyt_timeseries).content
-    nyt_data = pd.read_csv(io.BytesIO(nyt_data),
+
+    r = requests.get(nyt_timeseries, stream=True)
+    size = 0
+    content = io.BytesIO()
+    maxsize = 1000000
+
+    for chunk in r.iter_content(750000):
+        size += len(chunk)
+        content.write(chunk)
+    content.seek(0)
+
+    # nyt_data = requests.get(nyt_timeseries).content
+    nyt_data = pd.read_csv(content,
                            encoding='utf8',
                            sep=",",
                            parse_dates=['date'],
