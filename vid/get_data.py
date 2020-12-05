@@ -171,9 +171,14 @@ def refresh_penn_hospital():
 
 
 # noinspection DuplicatedCode
-def load_nyt():
-    # todo: speed up. pd.to_sql, or manage.py loaddata
+def load_nyt(include_live=False):
+    """
+    load case/death time series from nyt github csv.
 
+    Free heroku dyno has buffer limit of 1mb so request is broken into chunks
+    free heroku postgres db has limit of only 10k rows, so
+        only includes the locations in focus_fips.
+    """
     CasesDeathsNTY.objects.all().delete()
 
     r = requests.get(nyt_timeseries, stream=True)
@@ -231,32 +236,33 @@ def load_nyt():
         except IntegrityError:
             print('nyt data failed to import')
 
-    nyt_live_data = requests.get(nyt_live).content
-    nyt_live_data = pd.read_csv(io.BytesIO(nyt_live_data),
-                                encoding='utf8',
-                                sep=",",
-                                parse_dates=['date'],
-                                dtype={'fips': str})
-    nyt_live_data = nyt_live_data.where(pd.notnull(nyt_live_data), None)
-    nyt_live_data = nyt_live_data[nyt_live_data['fips'].isin(list(focus_fips.keys()))]
+    if include_live:
+        nyt_live_data = requests.get(nyt_live).content
+        nyt_live_data = pd.read_csv(io.BytesIO(nyt_live_data),
+                                    encoding='utf8',
+                                    sep=",",
+                                    parse_dates=['date'],
+                                    dtype={'fips': str})
+        nyt_live_data = nyt_live_data.where(pd.notnull(nyt_live_data), None)
+        nyt_live_data = nyt_live_data[nyt_live_data['fips'].isin(list(focus_fips.keys()))]
 
-    nyt_cases_live = []
+        nyt_cases_live = []
 
-    for index, row in nyt_live_data.iterrows():
-        aware_date = make_aware(row['date'])
-        nyt_cases_live.append(CasesDeathsNTY(date=aware_date,
-                                             county=row['county'],
-                                             state=row['state'],
-                                             fips=row['fips'],
-                                             cases=row['cases'],
-                                             deaths=row['deaths'],
-                                             ))
+        for index, row in nyt_live_data.iterrows():
+            aware_date = make_aware(row['date'])
+            nyt_cases_live.append(CasesDeathsNTY(date=aware_date,
+                                                 county=row['county'],
+                                                 state=row['state'],
+                                                 fips=row['fips'],
+                                                 cases=row['cases'],
+                                                 deaths=row['deaths'],
+                                                 ))
 
-    try:
-        CasesDeathsNTY.objects.bulk_create(nyt_cases_live)
-        print('nyt live data successfully imported')
-    except IntegrityError:
-        print('nyt live data failed to import')
+        try:
+            CasesDeathsNTY.objects.bulk_create(nyt_cases_live)
+            print('nyt live data successfully imported')
+        except IntegrityError:
+            print('nyt live data failed to import')
 
 
 def load_actnow(fips):
