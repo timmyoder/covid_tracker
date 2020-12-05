@@ -139,6 +139,12 @@ def los_angeles(request):
 
     return render(request, "location_page.jinja2", {"location_data": los_angeles_page})
 
+# todo: create comparison page
+
 
 def home(request):
     return render(request, 'home.jinja2')
+
+
+def sources(request):
+    return render(request, 'sources.jinja2')

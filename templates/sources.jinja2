@@ -1,0 +1,42 @@
+{% extends 'base.jinja2' %}
+
+{% block subtitle %}
+    Sources
+{% endblock subtitle %}
+
+{% block content %}
+<ul>
+    <li><b>Source Code</b>
+        <ul>
+            <li> <a href=https://github.com/timmyoder/covid_tracker>My Github</a></li>
+            <li>All the code required for this site. The app is currently hosted
+            on a free <a href=https://www.heroku.com/>heroku</a> dyno. </li>
+
+        </ul>
+    </li>
+        <li><b>Pennsylvania data</b>
+        <ul>
+            <li> <a href=https://www.health.pa.gov/topics/disease/coronavirus/Pages/Cases.aspx>
+                Penn's Department of Health</a></li>
+            <li>Data for the counties in Pennsylvania are pulled directly from the DOH website.</li>
+
+        </ul>
+    </li>
+    <li><b>New York Times Covid Data</b>
+        <ul>
+            <li> <a href=https://github.com/nytimes/covid-19-data>NYT Github</a></li>
+            <li>Daily records for cases and deaths by county.
+            Data is brought into the tracker daily.</li>
+
+        </ul>
+    </li>
+    <li><b>Covid ActNow</b>
+        <ul>
+            <li> <a href=https://covidactnow.org/>Covid ActNow Homepage</a></li>
+            <li>This is where the r value and testing positivity data are pulled from.
+            Data is pulled from their api daily.</li>
+
+        </ul>
+    </li>
+</ul>
+{% endblock content %}
