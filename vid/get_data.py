@@ -316,7 +316,11 @@ def cache_pages():
              'cleveland',
              'la',
              ]
-    header = {"Content-Type": "application/json; charset=utf-8"}
     for page in pages:
-        req = requests.get(url=f'{APP_URL}{page}', headers=header)
-        print(f'{page} page cached: {req.status_code}')
+        req = requests.get(url=f'{APP_URL}{page}')
+        content = req.content
+        if 'Yoder' in content.decode():
+            print(f'{page} page cached: {req.status_code}')
+        else:
+            print(f'{page} page caching failed')
+
