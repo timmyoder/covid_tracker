@@ -15,6 +15,7 @@ from vid.models import (Places,
                         PennHospitals,
                         CasesDeathsNTY,
                         MetricsActNow)
+from covid_tracker.settings import APP_URL
 
 api_key = '776e4ec57ee346d6a0a2a4abb6b006a8'
 act_now_api = f'https://api.covidactnow.org/v2/counties.timeseries.json?apiKey={api_key}'
@@ -304,3 +305,18 @@ def load_all_actnow():
 
     for fips in focus_fips:
         load_actnow(fips=fips)
+
+def cache_pages():
+    pages = ['somerset',
+             'philly',
+             'king',
+             'kane',
+             'oklahoma',
+             'dupage',
+             'cleveland',
+             'la',
+             ]
+    header = {"Content-Type": "application/json; charset=utf-8"}
+    for page in pages:
+        req = requests.get(url=f'{APP_URL}{page}', headers=header)
+        print(f'{page} page cached: {req.status_code}')
