@@ -68,6 +68,7 @@ def king(request):
     return render(request, "location_page.jinja2", {"location_data": king_page})
 
 
+@cache_page(CACHE_TTL)
 def kane(request):
     cases, deaths, r_value, positive_rate = location_data('Kane', 'Illinois')
 
@@ -84,6 +85,7 @@ def kane(request):
     return render(request, "location_page.jinja2", {"location_data": kane_page})
 
 
+@cache_page(CACHE_TTL)
 def dupage(request):
     cases, deaths, r_value, positive_rate = location_data('DuPage', 'Illinois')
 
@@ -100,6 +102,7 @@ def dupage(request):
     return render(request, "location_page.jinja2", {"location_data": dupage_page})
 
 
+@cache_page(CACHE_TTL)
 def okc(request):
     cases, deaths, r_value, positive_rate = location_data('Oklahoma', 'Oklahoma')
 
@@ -116,6 +119,7 @@ def okc(request):
     return render(request, "location_page.jinja2", {"location_data": okc_page})
 
 
+@cache_page(CACHE_TTL)
 def cleveland(request):
     cases, deaths, r_value, positive_rate = location_data('Cleveland', 'Oklahoma')
 
@@ -132,6 +136,7 @@ def cleveland(request):
     return render(request, "location_page.jinja2", {"location_data": cleveland_page})
 
 
+@cache_page(CACHE_TTL)
 def los_angeles(request):
     cases, deaths, r_value, positive_rate = location_data('Los Angeles', 'California')
 
