@@ -1,17 +1,23 @@
 from django.shortcuts import render
+from django.views.decorators.cache import cache_page
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+
 from threading import Lock
 
 from vid.page_server import location_data, pa_data
 from vid.location_page import LocationPage
-import vid.get_data
 
 lock = Lock()
 
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
+
+@cache_page(CACHE_TTL)
 def somerset(request):
     cases, deaths, hospital, r_value, positive_rate = pa_data(county='Somerset')
 
-    somerset_page = LocationPage('Somerset',
+    somerset_page = LocationPage('Somerset County, PA',
                                  cases=cases,
                                  deaths=deaths,
                                  r_value=r_value,
@@ -26,10 +32,11 @@ def somerset(request):
     return render(request, "location_page.jinja2", {"location_data": somerset_page})
 
 
+@cache_page(CACHE_TTL)
 def philly(request):
     cases, deaths, hospital, r_value, positive_rate = pa_data(county='Philadelphia')
 
-    philly_page = LocationPage('Philadelphia',
+    philly_page = LocationPage('Philadelphia County, PA',
                                cases=cases,
                                deaths=deaths,
                                r_value=r_value,
@@ -44,10 +51,11 @@ def philly(request):
     return render(request, "location_page.jinja2", {"location_data": philly_page})
 
 
+@cache_page(CACHE_TTL)
 def king(request):
     cases, deaths, r_value, positive_rate = location_data('King', 'Washington')
 
-    king_page = LocationPage('King County',
+    king_page = LocationPage('King County, WA',
                              cases=cases,
                              deaths=deaths,
                              r_value=r_value,
@@ -63,7 +71,7 @@ def king(request):
 def kane(request):
     cases, deaths, r_value, positive_rate = location_data('Kane', 'Illinois')
 
-    kane_page = LocationPage('Kane, IL',
+    kane_page = LocationPage('Kane County, IL',
                              cases=cases,
                              deaths=deaths,
                              r_value=r_value,
@@ -79,7 +87,7 @@ def kane(request):
 def dupage(request):
     cases, deaths, r_value, positive_rate = location_data('DuPage', 'Illinois')
 
-    dupage_page = LocationPage('DuPage, IL',
+    dupage_page = LocationPage('DuPage County, IL',
                                cases=cases,
                                deaths=deaths,
                                r_value=r_value,
@@ -95,7 +103,7 @@ def dupage(request):
 def okc(request):
     cases, deaths, r_value, positive_rate = location_data('Oklahoma', 'Oklahoma')
 
-    okc_page = LocationPage('Oklahoma County',
+    okc_page = LocationPage('Oklahoma County, OK',
                             cases=cases,
                             deaths=deaths,
                             r_value=r_value,

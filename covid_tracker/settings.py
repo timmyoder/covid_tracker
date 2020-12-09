@@ -120,3 +120,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# caching
+# deployed version uses heroku redis addon
+
+# Cache time to live is 15 minutes.
+CACHE_TTL = 60 * 15
+
+CACHES = {
+    "default": {
+        "BACKEND": "redis_cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
+}
