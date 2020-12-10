@@ -126,7 +126,7 @@ STATIC_URL = '/static/'
 # deployed version uses heroku redis addon
 
 # Cache time to live is 15 minutes.
-CACHE_TTL = 60 * 15
+CACHE_TTL = 60 * 60
 
 CACHES = {
     "default": {
