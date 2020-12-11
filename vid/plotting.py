@@ -15,58 +15,77 @@ axis_font = {'fontsize': 14}
 
 
 def plot_cases(case_data, avg_case_data, titles):
-    fig = plt.figure()
+    # todo catch depreciation warning
+    with warnings.catch_warnings():
+        fig = plt.figure()
 
-    plt.bar(case_data.index,
-            case_data,
-            alpha=.6,
-            color='tab:gray',
-            label='Single Day')
-    plt.plot(avg_case_data,
-             color='tab:red',
-             lw=3,
-             label='7 Day Average')
-    plt.title(titles['figure'],
-              fontdict=title_font)
-    plt.ylabel(titles['y'],
-               fontdict=axis_font)
-    fig.autofmt_xdate(rotation=45)
-    plt.legend()
-    html_str = mpld3.fig_to_html(fig)
+        plt.bar(case_data.index,
+                case_data,
+                alpha=.6,
+                color='tab:gray',
+                label='Single Day')
+        plt.plot(avg_case_data,
+                 color='tab:red',
+                 lw=3,
+                 label='7 Day Average')
 
-    return html_str
+        points = plt.scatter(avg_case_data.index,
+                             avg_case_data,
+                             color='none')
+        labels = list(avg_case_data.values)
+        tooltip = mpld3.plugins.PointHTMLTooltip(points, labels)
+        mpld3.plugins.connect(fig, tooltip)
+
+        plt.title(titles['figure'],
+                  fontdict=title_font)
+        plt.ylabel(titles['y'],
+                   fontdict=axis_font)
+        fig.autofmt_xdate(rotation=45)
+        plt.legend()
+        html_str = mpld3.fig_to_html(fig)
+
+        return html_str
 
 
 def plot_deaths(death_data, death_ave, titles):
-    fig = plt.figure()
+    with warnings.catch_warnings():
+        fig = plt.figure()
 
-    plt.bar(death_data.index,
-            death_data,
-            color='tab:red',
-            alpha=.6,
-            label='Single Day'
-            )
+        plt.bar(death_data.index,
+                death_data,
+                color='tab:red',
+                alpha=.6,
+                label='Single Day'
+                )
 
-    average = plt.plot(death_ave,
-                       color='tab:red',
-                       lw=3,
-                       label='7 Day Average')
+        plt.plot(death_ave,
+                 color='tab:red',
+                 lw=3,
+                 label='7 Day Average')
 
-    plt.title(titles['figure'],
-              fontdict=title_font)
-    plt.ylabel(titles['y'],
-               fontdict=axis_font)
-    fig.autofmt_xdate(rotation=45)
-    # labels = []
-    # for death in death_ave:
-    #     label = death
-    #     labels.append(str(label))
-    #
-    # mpld3.plugins.connect(fig, mpld3.plugins.PointHTMLTooltip(average[0], labels))
-    plt.legend()
-    html_str = mpld3.fig_to_html(fig)
+        points = plt.scatter(death_ave.index,
+                             death_ave,
+                             color='none')
+        labels = list(death_ave.values)
+        tooltip = mpld3.plugins.PointHTMLTooltip(points, labels)
+        mpld3.plugins.connect(fig, tooltip)
 
-    return html_str
+        plt.title(titles['figure'],
+                  fontdict=title_font)
+        plt.ylabel(titles['y'],
+                   fontdict=axis_font)
+        fig.autofmt_xdate(rotation=45)
+        # todo: tooltips finish
+        # labels = []
+        # for death in death_ave:
+        #     label = death
+        #     labels.append(str(label))
+        #
+        # mpld3.plugins.connect(fig, mpld3.plugins.PointHTMLTooltip(average[0], labels))
+        plt.legend()
+        html_str = mpld3.fig_to_html(fig)
+
+        return html_str
 
 
 def plot_hospital_avail(percentage_data):
@@ -137,19 +156,60 @@ def plot_hospitals(covid_daily,
 
 
 def plot_rvalue(r_series, titles):
+    with warnings.catch_warnings():
+        r_series = r_series.dropna()
+
+        fig = plt.figure()
+
+        plt.plot(r_series.index,
+                 r_series,
+                 lw=3,
+                 color='tab:orange')
+
+        # add scatter plot with no color for labels
+        points = plt.scatter(r_series.index,
+                             r_series,
+                             color='none')
+        labels = [f'{value:.2f}' for value in r_series.values]
+        tooltip = mpld3.plugins.PointHTMLTooltip(points, labels)
+        mpld3.plugins.connect(fig, tooltip)
+
+        plt.plot(r_series.index,
+                 np.ones(len(r_series)),
+                 alpha=.6,
+                 color='tab:gray',
+                 linestyle='--')
+
+        plt.title(titles['figure'],
+                  fontdict=title_font)
+        plt.ylabel(titles['y'],
+                   fontdict=axis_font)
+        fig.autofmt_xdate(rotation=45)
+        html_str = mpld3.fig_to_html(fig)
+
+        return html_str
+
+
+def plot_comparison(list_of_counties, titles, labels):
     fig = plt.figure()
 
-    plt.plot(r_series.index,
-             r_series,
-             lw=3,
-             color='tab:orange')
+    colors = ['tab:blue',
+              'tab:orange',
+              'tab:green',
+              'tab:red',
+              'tab:purple',
+              'tab:cyan',
+              'tab:gray',
+              'tab:brown']
 
-    plt.plot(r_series.index,
-             np.ones(len(r_series)),
-             alpha=.6,
-             color='tab:gray',
-             linestyle='--')
+    for ind, county in enumerate(list_of_counties):
+        plt.plot(county.index,
+                 county,
+                 lw=3,
+                 color=colors[ind],
+                 label=labels[ind])
 
+    plt.legend()
     plt.title(titles['figure'],
               fontdict=title_font)
     plt.ylabel(titles['y'],

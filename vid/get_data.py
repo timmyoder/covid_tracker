@@ -8,6 +8,7 @@ import json
 
 from django.utils.timezone import make_aware
 from django.db.utils import IntegrityError
+from django.core.cache import cache
 
 from vid.models import (Places,
                         PennCases,
@@ -306,7 +307,11 @@ def load_all_actnow():
     for fips in focus_fips:
         load_actnow(fips=fips)
 
+
 def cache_pages():
+    # clear existing cache
+    cache.clear()
+
     pages = ['somerset',
              'philly',
              'king',
@@ -316,6 +321,8 @@ def cache_pages():
              'cleveland',
              'la',
              ]
+
+    # load all pages into the cache with fresh data
     for page in pages:
         req = requests.get(url=f'{APP_URL}{page}')
         content = req.content
