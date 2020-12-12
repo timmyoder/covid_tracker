@@ -17,7 +17,7 @@ axis_font = {'fontsize': 14}
 
 
 def plot_cases(case_data, avg_case_data, titles):
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10, 6))
 
     plt.bar(case_data.index,
             case_data,
@@ -48,7 +48,7 @@ def plot_cases(case_data, avg_case_data, titles):
 
 
 def plot_deaths(death_data, death_ave, titles):
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10, 6))
 
     plt.bar(death_data.index,
             death_data,
@@ -85,7 +85,7 @@ def plot_hospital_avail(percentage_data):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(10, 6))
 
         # The position of the bars on the x-axis
         r = np.arange(len(percentage_data.columns))
@@ -126,7 +126,7 @@ def plot_hospital_avail(percentage_data):
 def plot_hospitals(covid_daily,
                    covid_average,
                    titles):
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10, 6))
 
     plt.bar(covid_daily.index,
             covid_daily,
@@ -157,7 +157,7 @@ def plot_hospitals(covid_daily,
 def plot_rvalue(r_series, titles):
     r_series = r_series.dropna()
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10, 6))
 
     plt.plot(r_series.index,
              r_series,
