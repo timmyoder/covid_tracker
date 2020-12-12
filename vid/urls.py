@@ -8,7 +8,8 @@ from vid.views import (somerset,
                        okc,
                        cleveland,
                        los_angeles,
-                       sources)
+                       sources,
+                       comparison)
 
 urlpatterns = [
     path("", home, name="home"),
@@ -21,4 +22,5 @@ urlpatterns = [
     path("cleveland/", cleveland, name="cleveland"),
     path("la/", los_angeles, name="los_angeles"),
     path("sources/", sources, name="sources"),
+    path("comparison/", comparison, name="comparison"),
 ]

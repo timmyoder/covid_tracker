@@ -1,0 +1,12 @@
+{% extends 'base.jinja2' %}
+
+{% block subtitle %} Comparison {% endblock subtitle %}
+
+{% block content %}
+
+    {{ comparison.cases_fig_html|safe }}
+    {{ comparison.recent_cases_fig_html|safe }}
+    {{ comparison.deaths_fig_html|safe }}
+    {{ comparison.recent_deaths_fig_html|safe }}
+
+{% endblock content %}

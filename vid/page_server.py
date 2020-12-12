@@ -80,6 +80,7 @@ def pa_data(county):
     deaths = pd.DataFrame(list(PennDeaths.objects.filter(county=county).values()))
     deaths = deaths.set_index('date').sort_index()
     deaths['deaths_avg_new'] = deaths['deaths'].rolling(window=7).mean()
+    deaths['deaths_avg_new_rate'] = deaths['deaths_rate'].rolling(window=7).mean()
 
     hospitals = pd.DataFrame(list(PennHospitals.objects.filter(county=county).values()))
     hospitals = hospitals.set_index('date').sort_index()
@@ -92,32 +93,24 @@ def pa_data(county):
     return cases, deaths, hospitals, r_value, positive_rate
 
 
-def get_all_population():
-    # todo write me
-    pass
+def comparison_data(counties):
+    case_list = []
+    death_list = []
 
+    for county in counties:
+        if county in ['Somerset', 'Philadelphia']:
+            cases, deaths, hospitals, r_value, positive_rate = pa_data(county)
+            case_list.append(cases['cases_avg_new_rate'])
+            death_list.append(deaths['deaths_avg_new_rate'])
 
-def comparison_data():
-    nyt_data = pd.DataFrame(list(CasesDeathsNTY.objects.all()))
-    nyt_data = nyt_data.set_index('date').sort_index()
+        else:
+            cases, deaths, r_value, positive_rate = location_data(county[0],
+                                                                  county[1])
+            case_list.append(cases['cases_avg_new_rate'])
+            death_list.append(deaths['deaths_avg_new_rate'])
 
-    populations = get_all_population()
+    return case_list, death_list
 
-    nyt_data = nyt_data.rename(columns={'cases': 'cases_rate',
-                     'cases_avg_new': 'cases_avg_new_rate',
-                     'cases_cume': 'cases_cume_rate',
-                     'deaths': 'deaths_rate',
-                     'deaths_avg_new': 'deaths_avg_new_rate',
-                     'deaths_cume': 'deaths_cume_rate'})
-    # / (float(population) / 100000)
-
-    penn_cases = pd.DataFrame(list(PennCases.objects.all()))
-    penn_cases = penn_cases.set_index('date').sort_index()
-
-    penn_deaths = pd.DataFrame(list(PennDeaths.objects.all()))
-    penn_deaths = penn_deaths.set_index('date').sort_index()
-    # penn_deaths['deaths_avg_new_rate'] = penn_deaths['deaths'].rolling(window=7).mean() / penn_pop
-    # finish me
 
 if __name__ == '__main__':
     out = location_data('Somerset', 'Pennsylvania')

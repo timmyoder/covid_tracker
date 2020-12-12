@@ -5,8 +5,9 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 from threading import Lock
 
-from vid.page_server import location_data, pa_data
+from vid.page_server import location_data, pa_data, comparison_data
 from vid.location_page import LocationPage
+from vid.comparison_page import ComparisonPage
 
 lock = Lock()
 
@@ -152,8 +153,35 @@ def los_angeles(request):
 
     return render(request, "location_page.jinja2", {"location_data": los_angeles_page})
 
-# todo: create comparison page
 
+@cache_page(CACHE_TTL)
+def comparison(request):
+    counties = ['Somerset',
+                'Philadelphia',
+                ('Los Angeles', 'California'),
+                ('Cleveland', 'Oklahoma'),
+                ('Oklahoma', 'Oklahoma'),
+                ('DuPage', 'Illinois'),
+                ('Kane', 'Illinois'),
+                ('King', 'Washington')]
+
+    cases, deaths = comparison_data(counties=counties)
+
+    counties = ['Somerset, PA',
+                'Philadelphia, PA',
+                'Los Angeles, CA',
+                'Cleveland, OK',
+                'Oklahoma, OK',
+                'DuPage, IL',
+                'Kane, IL',
+                'King, WA']
+
+    comparison_page = ComparisonPage(case_list=cases, death_list=deaths, county_names=counties)
+    with lock:
+        comparison_page.create_case_comparison_plots()
+        comparison_page.create_death_comparison_plots()
+
+    return render(request, "comparison.jinja2", {"comparison": comparison_page})
 
 def home(request):
     return render(request, 'home.jinja2')

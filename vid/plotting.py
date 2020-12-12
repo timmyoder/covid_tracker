@@ -4,13 +4,12 @@ import numpy as np
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-
 plt.ioff()
 import mpld3
 
 import warnings
-warnings.filterwarnings("ignore", category=matplotlib.cbook.mplDeprecation)
 
+warnings.filterwarnings("ignore", category=matplotlib.cbook.mplDeprecation)
 
 title_font = {'fontsize': 18,
               }
@@ -156,42 +155,41 @@ def plot_hospitals(covid_daily,
 
 
 def plot_rvalue(r_series, titles):
-    with warnings.catch_warnings():
-        r_series = r_series.dropna()
+    r_series = r_series.dropna()
 
-        fig = plt.figure()
+    fig = plt.figure()
 
-        plt.plot(r_series.index,
-                 r_series,
-                 lw=3,
-                 color='tab:orange')
+    plt.plot(r_series.index,
+             r_series,
+             lw=3,
+             color='tab:orange')
 
-        # add scatter plot with no color for labels
-        points = plt.scatter(r_series.index,
-                             r_series,
-                             color='none')
-        labels = [f'{value:.2f}' for value in r_series.values]
-        tooltip = mpld3.plugins.PointHTMLTooltip(points, labels)
-        mpld3.plugins.connect(fig, tooltip)
+    # add scatter plot with no color for labels
+    points = plt.scatter(r_series.index,
+                         r_series,
+                         color='none')
+    labels = [f'{value:.2f}' for value in r_series.values]
+    tooltip = mpld3.plugins.PointHTMLTooltip(points, labels)
+    mpld3.plugins.connect(fig, tooltip)
 
-        plt.plot(r_series.index,
-                 np.ones(len(r_series)),
-                 alpha=.6,
-                 color='tab:gray',
-                 linestyle='--')
+    plt.plot(r_series.index,
+             np.ones(len(r_series)),
+             alpha=.6,
+             color='tab:gray',
+             linestyle='--')
 
-        plt.title(titles['figure'],
-                  fontdict=title_font)
-        plt.ylabel(titles['y'],
-                   fontdict=axis_font)
-        fig.autofmt_xdate(rotation=45)
-        html_str = mpld3.fig_to_html(fig)
+    plt.title(titles['figure'],
+              fontdict=title_font)
+    plt.ylabel(titles['y'],
+               fontdict=axis_font)
+    fig.autofmt_xdate(rotation=45)
+    html_str = mpld3.fig_to_html(fig)
 
-        return html_str
+    return html_str
 
 
 def plot_comparison(list_of_counties, titles, labels):
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10, 6))
 
     colors = ['tab:blue',
               'tab:orange',
@@ -205,13 +203,23 @@ def plot_comparison(list_of_counties, titles, labels):
     for ind, county in enumerate(list_of_counties):
         plt.plot(county.index,
                  county,
-                 lw=3,
+                 lw=2,
                  color=colors[ind],
                  label=labels[ind])
+        # add scatter plot with no color for labels
+        points = plt.scatter(county.index,
+                             county,
+                             color='none')
+        tip_labels = [f'{labels[ind]}: {value:.2f}' for value in county.values]
+        tooltip = mpld3.plugins.PointHTMLTooltip(points, tip_labels)
+        mpld3.plugins.connect(fig, tooltip)
 
-    plt.legend()
+    plt.legend(bbox_to_anchor=(1.04, 0.5), loc="center left", borderaxespad=0)
+    plt.subplots_adjust(right=0.8)
+
     plt.title(titles['figure'],
-              fontdict=title_font)
+              fontdict=title_font,
+              )
     plt.ylabel(titles['y'],
                fontdict=axis_font)
     fig.autofmt_xdate(rotation=45)
