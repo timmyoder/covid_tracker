@@ -320,6 +320,7 @@ def cache_pages():
              'dupage',
              'cleveland',
              'la',
+             'comparison'
              ]
 
     # load all pages into the cache with fresh data
