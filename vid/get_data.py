@@ -308,7 +308,7 @@ def load_all_actnow():
         load_actnow(fips=fips)
 
 
-def cache_pages():
+def cache_pages(running_local=False):
     # clear existing cache
     cache.clear()
 
@@ -322,10 +322,14 @@ def cache_pages():
              'la',
              'comparison'
              ]
+    if not running_local:
+        url = APP_URL
+    else:
+        url = 'http://127.0.0.1:8000/'
 
     # load all pages into the cache with fresh data
     for page in pages:
-        req = requests.get(url=f'{APP_URL}{page}')
+        req = requests.get(url=f'{url}{page}')
         content = req.content
         if 'Yoder' in content.decode():
             print(f'{page} page cached: {req.status_code}')

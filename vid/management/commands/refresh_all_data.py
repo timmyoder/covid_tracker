@@ -10,8 +10,13 @@ from vid.get_data import (load_all_actnow,
 
 class Command(BaseCommand):
 
-    # def add_arguments(self, parser):
-    #     parser.add_argument('csv_file', nargs='+', type=str)
+    def add_arguments(self, parser):
+        # Named (optional) arguments
+        parser.add_argument(
+            '--local',
+            action='store_true',
+            help='Run refresh locally',
+        )
 
     def handle(self, *args, **options):
         # load pa data
@@ -26,4 +31,4 @@ class Command(BaseCommand):
         load_nyt()
 
         # render and cache pages
-        cache_pages()
+        cache_pages(running_local=options['local'])
