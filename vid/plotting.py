@@ -1,6 +1,6 @@
-import matplotlib
 import numpy as np
 
+import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -43,6 +43,7 @@ def plot_cases(case_data, avg_case_data, titles):
     fig.autofmt_xdate(rotation=45)
     plt.legend()
     html_str = mpld3.fig_to_html(fig)
+    plt.close()
 
     return html_str
 
@@ -77,6 +78,7 @@ def plot_deaths(death_data, death_ave, titles):
 
     plt.legend()
     html_str = mpld3.fig_to_html(fig)
+    plt.close()
 
     return html_str
 
@@ -119,6 +121,7 @@ def plot_hospital_avail(percentage_data):
         ax.set_xlabel(bed_types)
 
         html_str = mpld3.fig_to_html(fig)
+        plt.close()
 
     return html_str
 
@@ -150,6 +153,7 @@ def plot_hospitals(covid_daily,
     fig.autofmt_xdate(rotation=45)
     plt.legend()
     html_str = mpld3.fig_to_html(fig)
+    plt.close()
 
     return html_str
 
@@ -184,6 +188,8 @@ def plot_rvalue(r_series, titles):
                fontdict=axis_font)
     fig.autofmt_xdate(rotation=45)
     html_str = mpld3.fig_to_html(fig)
+    plt.close()
+
 
     return html_str
 
@@ -224,5 +230,7 @@ def plot_comparison(list_of_counties, titles, labels):
                fontdict=axis_font)
     fig.autofmt_xdate(rotation=45)
     html_str = mpld3.fig_to_html(fig)
+    plt.close()
+
 
     return html_str
