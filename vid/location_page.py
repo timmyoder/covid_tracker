@@ -52,7 +52,10 @@ class LocationPage:
         self.hospital_percent = None
 
     def create_case_plots(self):
+        # drop negative cases
         self.cases = self.cases[self.cases['cases'] > 0]
+        self.cases = self.cases[self.cases['cases'] > 0]
+
         case_titles = {'figure': f'{self.name} Case Data',
                        'y': 'Daily Cases'}
         recent_titles = {'figure': f'{self.name} Case Data - Previous Two Weeks',
@@ -67,7 +70,10 @@ class LocationPage:
                                                              )
 
     def create_death_plots(self):
+        # drop negative (wut?) deaths
         self.deaths = self.deaths[self.deaths['deaths'] > 0]
+        self.recent_deaths = self.recent_deaths[self.recent_deaths['deaths'] > 0]
+
 
         death_titles = {'figure': f'{self.name} Death Data',
                         'y': 'Daily Deaths'}
