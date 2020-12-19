@@ -65,7 +65,7 @@ class PennDeaths(models.Model):
 
 
 class CasesDeathsNTY(models.Model):
-    """Cases by date from CovidActNow API where better sources DNE"""
+    """Cases by date from NTY github CSV"""
     date = models.DateTimeField()
     county = models.CharField(max_length=128)
     state = models.CharField(max_length=128)
@@ -75,6 +75,13 @@ class CasesDeathsNTY(models.Model):
 
     class Meta:
         unique_together = (("date", "fips"),)
+
+
+class AllNTY(models.Model):
+    """Cases by date from NTY for the entire US github CSV"""
+    date = models.DateTimeField()
+    cases = models.IntegerField(null=True)
+    deaths = models.IntegerField(null=True)
 
 
 class MetricsActNow(models.Model):

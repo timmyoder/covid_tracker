@@ -194,7 +194,7 @@ def plot_rvalue(r_series, titles):
     return html_str
 
 
-def plot_comparison(list_of_counties, titles, labels):
+def plot_comparison(list_of_counties, us_values, titles, labels):
     fig = plt.figure(figsize=(10, 6))
 
     colors = ['tab:blue',
@@ -205,6 +205,20 @@ def plot_comparison(list_of_counties, titles, labels):
               'tab:cyan',
               'tab:gray',
               'tab:brown']
+
+    plt.plot(us_values.index,
+             us_values,
+             lw=5,
+             color='k',
+             alpha=.5,
+             label='Total US')
+    # add scatter plot with no color for labels
+    points = plt.scatter(us_values.index,
+                         us_values,
+                         color='none')
+    tip_labels = [f'US: {value:.2f}' for value in us_values.values]
+    tooltip = mpld3.plugins.PointHTMLTooltip(points, tip_labels)
+    mpld3.plugins.connect(fig, tooltip)
 
     for ind, county in enumerate(list_of_counties):
         plt.plot(county.index,
@@ -231,6 +245,5 @@ def plot_comparison(list_of_counties, titles, labels):
     fig.autofmt_xdate(rotation=45)
     html_str = mpld3.fig_to_html(fig)
     plt.close()
-
 
     return html_str

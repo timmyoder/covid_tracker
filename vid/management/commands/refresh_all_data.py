@@ -5,6 +5,7 @@ from vid.get_data import (load_all_actnow,
                           refresh_penn_cases,
                           refresh_penn_hospital,
                           refresh_penn_deaths,
+                          load_nyt_all_us,
                           cache_pages)
 
 
@@ -29,6 +30,7 @@ class Command(BaseCommand):
 
         # load NYT deaths and cases
         load_nyt()
+        load_nyt_all_us()
 
         # render and cache pages
         cache_pages(running_local=options['local'])

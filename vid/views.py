@@ -5,7 +5,7 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 from threading import Lock
 
-from vid.page_server import location_data, pa_data, comparison_data
+from vid.page_server import location_data, pa_data, comparison_data, us_data
 from vid.location_page import LocationPage
 from vid.comparison_page import ComparisonPage
 
@@ -166,6 +166,7 @@ def comparison(request):
                 ('King', 'Washington')]
 
     cases, deaths = comparison_data(counties=counties)
+    us_cases, us_deaths = us_data()
 
     counties = ['Somerset, PA',
                 'Philadelphia, PA',
@@ -176,7 +177,11 @@ def comparison(request):
                 'Kane, IL',
                 'King, WA']
 
-    comparison_page = ComparisonPage(case_list=cases, death_list=deaths, county_names=counties)
+    comparison_page = ComparisonPage(case_list=cases,
+                                     death_list=deaths,
+                                     us_cases=us_cases['cases_avg_new_rate'],
+                                     us_deaths=us_deaths['deaths_avg_new_rate'],
+                                     county_names=counties)
     with lock:
         comparison_page.create_case_comparison_plots()
         comparison_page.create_death_comparison_plots()

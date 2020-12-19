@@ -15,7 +15,8 @@ from vid.models import (Places,
                         PennDeaths,
                         PennHospitals,
                         CasesDeathsNTY,
-                        MetricsActNow)
+                        MetricsActNow,
+                        AllNTY)
 from covid_tracker.settings import APP_URL
 
 api_key = '776e4ec57ee346d6a0a2a4abb6b006a8'
@@ -30,6 +31,7 @@ oklahoma_files = 'https://storage.googleapis.com/' \
 
 nyt_timeseries = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv'
 nyt_live = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv'
+nyt_all = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv'
 
 focus_fips = {'42101': 'philly',
               '42111': 'somerset',
@@ -265,6 +267,66 @@ def load_nyt(include_live=False):
             print('nyt live data successfully imported')
         except IntegrityError:
             print('nyt live data failed to import')
+
+
+def load_nyt_all_us():
+    """
+    load case/death time series from nyt github csv for the entire US.
+
+    Free heroku dyno has buffer limit of 1mb so request is broken into chunks
+    free heroku postgres db has limit of only 10k rows, so
+        only includes the locations in focus_fips.
+    """
+    AllNTY.objects.all().delete()
+
+    r = requests.get(nyt_all, stream=True)
+    size = 0
+    content = io.BytesIO()
+    num_chunks = 0
+
+    for chunk in r.iter_content(750000):
+        size += len(chunk)
+        content.write(chunk)
+        num_chunks += 1
+    content.seek(0)
+
+    print('received all US nyt data')
+
+    nyt_data = pd.read_csv(content,
+                           encoding='utf8',
+                           sep=",",
+                           parse_dates=['date'])
+    nyt_data = nyt_data.where(pd.notnull(nyt_data), None)
+
+    print('read all US nyt data')
+
+    chunk_size = round(len(nyt_data) / (num_chunks + 1))
+    current_index = 0
+
+    while current_index < len(nyt_data) - 1:
+        end_index = current_index + chunk_size
+        if end_index > len(nyt_data) - 1:
+            chunks_dataframe = nyt_data.iloc[current_index:]
+        else:
+            chunks_dataframe = nyt_data[current_index:end_index]
+
+        current_index += chunk_size
+
+        nyt_cases = []
+        for index, row in chunks_dataframe.iterrows():
+            aware_date = make_aware(row['date'])
+            nyt_cases.append(CasesDeathsNTY(date=aware_date,
+                                            cases=row['cases'],
+                                            deaths=row['deaths'],
+                                            ))
+
+        print(f'created nyt objects in pd ending at index {end_index} of {len(nyt_data)}')
+
+        try:
+            AllNTY.objects.bulk_create(nyt_cases)
+            print('all US nyt data successfully imported')
+        except IntegrityError:
+            print('all US nyt data failed to import')
 
 
 def load_actnow(fips):
