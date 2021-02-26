@@ -1,5 +1,7 @@
 # Yoder Covid Tracker
 
+https://ancient-dawn-31373.herokuapp.com/
+
 Covid data tracker for counties with family members
 
 ## Data Sources
