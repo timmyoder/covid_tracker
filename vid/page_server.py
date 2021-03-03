@@ -132,15 +132,15 @@ def pa_data(county):
     deaths['deaths_avg_new'] = deaths['deaths'].rolling(window=7).mean()
     deaths['deaths_avg_new_rate'] = deaths['deaths_rate'].rolling(window=7).mean()
 
-    hospitals = pd.DataFrame(list(PennHospitals.objects.filter(county=county).values()))
-    hospitals = hospitals.set_index('date').sort_index()
+    # hospitals = pd.DataFrame(list(PennHospitals.objects.filter(county=county).values()))
+    # hospitals = hospitals.set_index('date').sort_index()
 
     fip_dict = {'Philadelphia': '42101',
                 'Somerset': '42111'}
     fips = fip_dict[county]
     r_value, positive_rate, population = get_actnow_metrics(fips=fips)
 
-    return cases, deaths, hospitals, r_value, positive_rate
+    return cases, deaths, r_value, positive_rate  # hospitals
 
 
 def comparison_data(counties):
@@ -149,7 +149,9 @@ def comparison_data(counties):
 
     for county in counties:
         if county in ['Somerset', 'Philadelphia']:
-            cases, deaths, hospitals, r_value, positive_rate = pa_data(county)
+            # cases, deaths, hospitals, r_value, positive_rate = pa_data(county)
+            cases, deaths, r_value, positive_rate = pa_data(county)
+
             case_list.append(cases['cases_avg_new_rate'])
             death_list.append(deaths['deaths_avg_new_rate'])
 

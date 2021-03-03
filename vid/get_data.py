@@ -140,38 +140,38 @@ def refresh_penn_deaths():
 def refresh_penn_hospital():
     PennHospitals.objects.all().delete()
 
-    county_data = []
-    for county in ['Somerset', 'Philadelphia']:
-        hospital_data = requests.get(f'{penn_hospital}?county={county}').json()
-        county_data.append(hospital_data)
-
-    for hospital_data in county_data:
-        objects = []
-        for entry in hospital_data:
-            date = datetime.strptime(entry.get('date'), "%Y-%m-%dT%H:%M:%S.%f")
-            aware_date = make_aware(date)
-            obj = PennHospitals(county=entry.get('county'),
-                                date=aware_date,
-                                aii_avail=float(entry.get('aii_avail', 0)),
-                                aii_total=float(entry.get('aii_total', 0)),
-                                icu_avail=float(entry.get('icu_avail', 0)),
-                                icu_total=float(entry.get('icu_total', 0)),
-                                med_avail=float(entry.get('med_avail', 0)),
-                                med_total=float(entry.get('med_total', 0)),
-                                covid_patients=float(entry.get('covid_patients', 0)),
-                                aii_percent=float(entry.get('aii_percent', 0)),
-                                icu_percent=float(entry.get('icu_percent', 0)),
-                                med_percent=float(entry.get('med_percent', 0))
-                                )
-
-            objects.append(obj)
-
-        try:
-            PennHospitals.objects.bulk_create(objects)
-            # noinspection PyUnboundLocalVariable
-            print(f'{entry.get("county")} hospital success')
-        except IntegrityError:
-            print(f'{entry.get("county")} hospital failure')
+    # county_data = []
+    # for county in ['Somerset', 'Philadelphia']:
+    #     hospital_data = requests.get(f'{penn_hospital}?county={county}').json()
+    #     county_data.append(hospital_data)
+    #
+    # for hospital_data in county_data:
+    #     objects = []
+    #     for entry in hospital_data:
+    #         date = datetime.strptime(entry.get('date'), "%Y-%m-%dT%H:%M:%S.%f")
+    #         aware_date = make_aware(date)
+    #         obj = PennHospitals(county=entry.get('county'),
+    #                             date=aware_date,
+    #                             aii_avail=float(entry.get('aii_avail', 0)),
+    #                             aii_total=float(entry.get('aii_total', 0)),
+    #                             icu_avail=float(entry.get('icu_avail', 0)),
+    #                             icu_total=float(entry.get('icu_total', 0)),
+    #                             med_avail=float(entry.get('med_avail', 0)),
+    #                             med_total=float(entry.get('med_total', 0)),
+    #                             covid_patients=float(entry.get('covid_patients', 0)),
+    #                             aii_percent=float(entry.get('aii_percent', 0)),
+    #                             icu_percent=float(entry.get('icu_percent', 0)),
+    #                             med_percent=float(entry.get('med_percent', 0))
+    #                             )
+    #
+    #         objects.append(obj)
+    #
+    #     try:
+    #         PennHospitals.objects.bulk_create(objects)
+    #         # noinspection PyUnboundLocalVariable
+    #         print(f'{entry.get("county")} hospital success')
+    #     except IntegrityError:
+    #         print(f'{entry.get("county")} hospital failure')
 
 
 # noinspection DuplicatedCode
@@ -206,6 +206,10 @@ def load_nyt(include_live=False):
                            dtype={'fips': str})
     nyt_data = nyt_data.where(pd.notnull(nyt_data), None)
     nyt_data = nyt_data[nyt_data['fips'].isin(list(focus_fips.keys()))]
+
+    # drop somerset and philly from data
+    nyt_data = nyt_data[nyt_data['fips'] != '42101']
+    nyt_data = nyt_data[nyt_data['fips'] != '42111']
 
     print('read nyt data')
 
@@ -249,6 +253,10 @@ def load_nyt(include_live=False):
                                     dtype={'fips': str})
         nyt_live_data = nyt_live_data.where(pd.notnull(nyt_live_data), None)
         nyt_live_data = nyt_live_data[nyt_live_data['fips'].isin(list(focus_fips.keys()))]
+
+        # drop somerset and philly from data
+        nyt_live_data = nyt_live_data[nyt_live_data['fips'] != '42101']
+        nyt_live_data = nyt_live_data[nyt_live_data['fips'] != '42111']
 
         nyt_cases_live = []
 
