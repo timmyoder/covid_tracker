@@ -5,8 +5,5 @@ from vid.get_data import load_all_actnow
 
 class Command(BaseCommand):
 
-    # def add_arguments(self, parser):
-    #     parser.add_argument('csv_file', nargs='+', type=str)
-
     def handle(self, *args, **options):
         load_all_actnow()

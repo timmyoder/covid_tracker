@@ -3,7 +3,6 @@ from django.core.management.base import BaseCommand, CommandError
 from vid.get_data import (load_all_actnow,
                           load_nyt,
                           refresh_penn_cases,
-                          refresh_penn_hospital,
                           refresh_penn_deaths,
                           load_nyt_all_us,
                           cache_pages)
@@ -23,7 +22,7 @@ class Command(BaseCommand):
         # load pa data
         refresh_penn_cases()
         refresh_penn_deaths()
-        refresh_penn_hospital()
+
 
         # load Covid ActNow metrics
         load_all_actnow()

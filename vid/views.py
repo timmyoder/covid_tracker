@@ -5,7 +5,7 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 from threading import Lock
 
-from vid.page_server import location_data, pa_data, comparison_data, us_data
+from vid.page_server import location_data, comparison_data, us_data
 from vid.location_page import LocationPage
 from vid.comparison_page import ComparisonPage
 
@@ -16,40 +16,34 @@ CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 @cache_page(CACHE_TTL)
 def somerset(request):
-    # cases, deaths, hospital, r_value, positive_rate = pa_data(county='Somerset')
-    cases, deaths, r_value, positive_rate = pa_data(county='Somerset')
+    cases, deaths, r_value, positive_rate = location_data('Somerset', 'Pennsylvania')
 
     somerset_page = LocationPage('Somerset County, PA',
                                  cases=cases,
                                  deaths=deaths,
                                  r_value=r_value,
-                                 # hospital=hospital,
                                  positive_rate=positive_rate)
 
     with lock:
         somerset_page.create_case_plots()
         somerset_page.create_death_plots()
-        # somerset_page.create_hospital_plot()
         somerset_page.create_r_plot()
     return render(request, "location_page.jinja2", {"location_data": somerset_page})
 
 
 @cache_page(CACHE_TTL)
 def philly(request):
-    # cases, deaths, hospital, r_value, positive_rate = pa_data(county='Philadelphia')
-    cases, deaths, r_value, positive_rate = pa_data(county='Philadelphia')
+    cases, deaths, r_value, positive_rate = location_data('Philadelphia', 'Pennsylvania')
 
     philly_page = LocationPage('Philadelphia County, PA',
                                cases=cases,
                                deaths=deaths,
                                r_value=r_value,
-                               # hospital=hospital,
                                positive_rate=positive_rate)
 
     with lock:
         philly_page.create_case_plots()
         philly_page.create_death_plots()
-        # philly_page.create_hospital_plot()
         philly_page.create_r_plot()
     return render(request, "location_page.jinja2", {"location_data": philly_page})
 
@@ -158,8 +152,8 @@ def los_angeles(request):
 
 @cache_page(CACHE_TTL)
 def comparison(request):
-    counties = ['Somerset',
-                'Philadelphia',
+    counties = [('Somerset', 'Pennsylvania'),
+                ('Philadelphia', 'Pennsylvania'),
                 ('Los Angeles', 'California'),
                 ('Cleveland', 'Oklahoma'),
                 ('Oklahoma', 'Oklahoma'),
@@ -189,6 +183,7 @@ def comparison(request):
         comparison_page.create_death_comparison_plots()
 
     return render(request, "comparison.jinja2", {"comparison": comparison_page})
+
 
 def home(request):
     return render(request, 'home.jinja2')
