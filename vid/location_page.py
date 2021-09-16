@@ -17,7 +17,10 @@ class LocationPage:
         self.deaths = deaths
         self.hospital = hospital
         self.r_value = r_value
-        self.positive_rate = f'{positive_rate*100:.2f}%'
+        if positive_rate is not None:
+            self.positive_rate = f'{positive_rate*100:.2f}%'
+        else:
+            self.positive_rate = 'not being calculated :('
 
         self.last_date = cases.index[-1].date()
         self.recent_cases = cases.iloc[-14:]

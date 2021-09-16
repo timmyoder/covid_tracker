@@ -13,7 +13,11 @@ def get_actnow_metrics(fips):
 
     population = act_now.population.unique()[0]
 
-    positive_rate = act_now['testPositivityRatio'].dropna().iloc[-1]
+    positivity_series = act_now['testPositivityRatio'].dropna()
+    if positivity_series.empty:
+        positive_rate = None
+    else:
+        positive_rate = act_now['testPositivityRatio'].dropna().iloc[-1]
     r_value = act_now['infectionRate']
 
     return r_value, positive_rate, population

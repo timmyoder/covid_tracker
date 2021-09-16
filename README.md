@@ -16,3 +16,4 @@ Covid data tracker for counties with family members
 *  Covid ActNow
 	*  [Covid ActNow](href=https://covidactnow.org/)
 	*  This is where the r value and testing positivity data are pulled from. Data is pulled from their api daily.
+	*  * 	**13/09/2021 UDPATE**  - Some counties \*cough King County cough* are having trouble getting their positivity rates calculated. I'm pretty sure this is the counties fault and not CovidActNow. When it happens, the county's page reports that the rate hasn't been calculated recently.
