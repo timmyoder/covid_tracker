@@ -40,8 +40,21 @@
             <li> <a href=https://covidactnow.org/>Covid ActNow Homepage</a></li>
             <li>This is where the r value and testing positivity data are pulled from.
             Data is pulled from their api daily.</li>
+            <li><b>13/09/2021 UDPATE</b>  - Some counties \*cough King County cough* are having
+                trouble getting their positivity rates calculated. I'm pretty sure this is the
+                counties fault and not CovidActNow. When it happens, the county's page reports that
+                the rate hasn't been calculated recently.</li>
+
 
         </ul>
+        <br>
+        <br>
+    </li>
+
+    <li><b>21/09/2021 Update</b> - DuPage County, IL is no longer included in the tracker. I ran into
+        the limit on database size that comes with the free Heroku dyno (again). If this thing doesn't end
+        soon (not holding out hope tbh), The database will need a new schema to fit all of the
+        data from all counties and all time.
     </li>
 </ul>
 {% endblock content %}
