@@ -1,11 +1,6 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
-from vid.get_data import (load_all_actnow,
-                          load_nyt,
-                          refresh_penn_cases,
-                          refresh_penn_deaths,
-                          load_nyt_all_us,
-                          cache_pages)
+from vid.get_data import load_metrics, load_nyt_all_us, cache_pages
 
 
 class Command(BaseCommand):
@@ -19,16 +14,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        # load pa data
-        refresh_penn_cases()
-        refresh_penn_deaths()
-
-
-        # load Covid ActNow metrics
-        load_all_actnow()
-
         # load NYT deaths and cases
-        load_nyt()
+        load_metrics()
         load_nyt_all_us()
 
         # render and cache pages

@@ -1,32 +1,15 @@
 import pandas as pd
 
-from vid.models import (CasesDeathsNTY,
-                        MetricsActNow,
-                        AllNTY)
+from vid.models import (CountyMetrics,
+                        EntireUS)
 
 US_POPULATION = 328239523
 
 
-def get_actnow_metrics(fips):
-    act_now = pd.DataFrame(list(MetricsActNow.objects.filter(fips=fips).values()))
-    act_now = act_now.set_index('date').sort_index()
-
-    population = act_now.population.unique()[0]
-
-    positivity_series = act_now['testPositivityRatio'].dropna()
-    if positivity_series.empty:
-        positive_rate = None
-    else:
-        positive_rate = act_now['testPositivityRatio'].dropna().iloc[-1]
-    r_value = act_now['infectionRate']
-
-    return r_value, positive_rate, population
-
-
 def location_data(county, state):
     # get data for location from db
-    nyt_data = pd.DataFrame(list(CasesDeathsNTY.objects.filter(county=county,
-                                                               state=state).values()))
+    nyt_data = pd.DataFrame(list(CountyMetrics.objects.filter(county=county,
+                                                              state=state).values()))
     nyt_data = nyt_data.set_index('date').sort_index()
 
     # calculate daily new cases/deaths based on cumulative totals
@@ -40,9 +23,14 @@ def location_data(county, state):
     nyt_data['cases_avg_new'] = nyt_data['cases'].rolling(window=7).mean()
     nyt_data['deaths_avg_new'] = nyt_data['deaths'].rolling(window=7).mean()
 
-    fips = nyt_data.fips.unique()[0]
+    population = nyt_data['population'].dropna().unique()[0]
 
-    r_value, positive_rate, population = get_actnow_metrics(fips=fips)
+    positivity_series = nyt_data['testPositivityRatio'].dropna()
+    if positivity_series.empty:
+        positive_rate = None
+    else:
+        positive_rate = nyt_data['testPositivityRatio'].dropna().iloc[-1]
+    r_value = nyt_data['infectionRate']
 
     per_100k_data = nyt_data[['cases',
                               'cases_avg_new',
@@ -79,7 +67,7 @@ def location_data(county, state):
 
 def us_data():
     # get data for location from db
-    nyt_data = pd.DataFrame(list(AllNTY.objects.all().values()))
+    nyt_data = pd.DataFrame(list(EntireUS.objects.all().values()))
     nyt_data = nyt_data.set_index('date').sort_index()
 
     # calculate daily new cases/deaths based on cumulative totals
