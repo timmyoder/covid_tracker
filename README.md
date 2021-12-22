@@ -18,3 +18,5 @@ Covid data tracker for counties with family members
 	*  This is where the r value and testing positivity data are pulled from. Data is pulled from their api daily.
 	*  **13/09/2021 UDPATE**  - Some counties \*cough King County cough* are having trouble getting their positivity rates calculated. I'm pretty sure this is the counties fault and not CovidActNow. When it happens, the county's page reports that the rate hasn't been calculated recently.  
 *  **21/09/2021 Update**- DuPage County, IL is no longer included in the tracker. I ran into the limit on database size that comes with the free Heroku dyno (again). If this thing doesn't end soon (not holding out hope tbh), The database will need a new schema to fit all of the data from all counties and all time.
+
+*  **21/12/2021 Update**- DuPage County, IL is back in folks. I did indeed run into the row limit on the free heroku postgres db again. instead of dropping more counties, I combined the NYT table with the CovidActNow metrics table. It is a little more janky, but it cut the number of rows in half almost, so unless we have another two years of this sh*t, that should no longer be an issue.
