@@ -82,21 +82,21 @@ def kane(request):
     return render(request, "location_page.jinja2", {"location_data": kane_page})
 
 
-# @cache_page(CACHE_TTL)
-# def dupage(request):
-#     cases, deaths, r_value, positive_rate = location_data('DuPage', 'Illinois')
-#
-#     dupage_page = LocationPage('DuPage County, IL',
-#                                cases=cases,
-#                                deaths=deaths,
-#                                r_value=r_value,
-#                                positive_rate=positive_rate)
-#     with lock:
-#         dupage_page.create_case_plots()
-#         dupage_page.create_death_plots()
-#         dupage_page.create_r_plot()
-#
-#     return render(request, "location_page.jinja2", {"location_data": dupage_page})
+@cache_page(CACHE_TTL)
+def dupage(request):
+    cases, deaths, r_value, positive_rate = location_data('DuPage', 'Illinois')
+
+    dupage_page = LocationPage('DuPage County, IL',
+                               cases=cases,
+                               deaths=deaths,
+                               r_value=r_value,
+                               positive_rate=positive_rate)
+    with lock:
+        dupage_page.create_case_plots()
+        dupage_page.create_death_plots()
+        dupage_page.create_r_plot()
+
+    return render(request, "location_page.jinja2", {"location_data": dupage_page})
 
 
 @cache_page(CACHE_TTL)
@@ -157,7 +157,7 @@ def comparison(request):
                 ('Los Angeles', 'California'),
                 ('Cleveland', 'Oklahoma'),
                 ('Oklahoma', 'Oklahoma'),
-                # ('DuPage', 'Illinois'),
+                ('DuPage', 'Illinois'),
                 ('Kane', 'Illinois'),
                 ('King', 'Washington')]
 
@@ -169,7 +169,7 @@ def comparison(request):
                 'Los Angeles, CA',
                 'Cleveland, OK',
                 'Oklahoma, OK',
-                # 'DuPage, IL',
+                'DuPage, IL',
                 'Kane, IL',
                 'King, WA']
 

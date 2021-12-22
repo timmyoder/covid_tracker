@@ -3,6 +3,7 @@ import vid.plotting
 import datetime
 import pandas as pd
 
+
 class ComparisonPage:
     """Class to serve up location data to specific page"""
 

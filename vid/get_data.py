@@ -21,7 +21,7 @@ nyt_all = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv
 focus_fips = {'42101': 'philly',
               '42111': 'somerset',
               '53033': 'king',
-              # '17043': 'dupage',
+              '17043': 'dupage',
               '17089': 'kane',
               '40027': 'cleveland',
               '40109': 'oklahoma',
@@ -232,7 +232,7 @@ def cache_pages(running_local=False):
              'king',
              'kane',
              'oklahoma',
-             # 'dupage',
+             'dupage',
              'cleveland',
              'la',
              'comparison'
