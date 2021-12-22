@@ -6,7 +6,7 @@ matplotlib~=3.3.1
 numpy~=1.19.2
 mpld3~=0.5.1
 
-psycopg2
+psycopg2~=2.8.5
 whitenoise
 gunicorn
 dj-database-url
