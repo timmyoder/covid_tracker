@@ -4,6 +4,11 @@ https://ancient-dawn-31373.herokuapp.com/
 
 Covid data tracker for counties with family members
 
+* Django framework
+* Heroku hosted
+* Redis caching 
+* Postgres database updated hourly 
+
 ## Data Sources
 
 *  New York Times Covid Data
