@@ -1,4 +1,6 @@
 import requests
+import datetime as dt
+
 import pandas as pd
 
 import io
@@ -18,6 +20,9 @@ nyt_timeseries = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master
 nyt_live = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv'
 nyt_all = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv'
 
+CURRENT_YEAR = dt.datetime.now().year
+PREVIOUS_YEARS = [year for year in range(2020, CURRENT_YEAR)]
+
 focus_fips = {'42101': 'philly',
               '42111': 'somerset',
               '53033': 'king',
@@ -28,8 +33,14 @@ focus_fips = {'42101': 'philly',
               '06037': 'los angeles'}
 
 
-def retrieve_nyt():
-    r = requests.get(nyt_timeseries, stream=True)
+def get_nyt_file_name(year):
+    return f'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-{year}.csv'
+
+
+def retrieve_nyt(year):
+    print('retrieving nyt data')
+    url = get_nyt_file_name(year)
+    r = requests.get(url, stream=True, timeout=5)
     size = 0
     content = io.BytesIO()
     num_chunks = 0
@@ -58,7 +69,7 @@ def retrieve_nyt():
     return nyt_data, num_chunks
 
 
-def retrieve_single_actnow(fips):
+def retrieve_single_actnow(fips, year=CURRENT_YEAR):
     api_single = f'https://api.covidactnow.org/v2/county/{fips}.timeseries.json?apiKey={api_key}'
     raw = requests.get(api_single).content
     raw_dict = json.loads(raw.decode('utf-8'))
@@ -70,21 +81,25 @@ def retrieve_single_actnow(fips):
     metrics = metrics[['date', 'testPositivityRatio', 'infectionRate']]
     metrics['population'] = population
     metrics['fips'] = fips
+
+    metrics['year'] = metrics['date'].dt.year
+    metrics = metrics[metrics['year'] == year]
+
     print(f'CovidActNow data for {focus_fips[fips]} successfully downloaded')
     return metrics
 
 
-def retrieve_all_actnow():
+def retrieve_all_actnow(year=CURRENT_YEAR):
     all_actnow_data = pd.DataFrame()
     for fips in focus_fips:
-        single_county_data = retrieve_single_actnow(fips=fips)
+        single_county_data = retrieve_single_actnow(fips=fips, year=year)
         all_actnow_data = all_actnow_data.append(single_county_data, ignore_index=True)
 
     return all_actnow_data
 
 
 # noinspection DuplicatedCode
-def load_metrics():
+def load_metrics(year=CURRENT_YEAR):
     """
     load case/death time series from nyt github csv.
 
@@ -92,11 +107,16 @@ def load_metrics():
     free heroku postgres db has limit of only 10k rows, so
         only includes the locations in focus_fips.
     """
-    CountyMetrics.objects.all().delete()
 
-    nyt_data, num_chunks = retrieve_nyt()
+    print(f'updating data for {year}')
 
-    actnow_metrics = retrieve_all_actnow()
+    CountyMetrics.objects.filter(date__year=year).delete()
+
+    print(f'models deleted for {year}')
+
+    nyt_data, num_chunks = retrieve_nyt(year)
+
+    actnow_metrics = retrieve_all_actnow(year)
 
     all_data = pd.merge(nyt_data, actnow_metrics, on=['date', 'fips'], how='left')
 
@@ -129,9 +149,9 @@ def load_metrics():
 
         try:
             CountyMetrics.objects.bulk_create(metrics_objects)
-            print('All metrics data successfully imported')
+            print(f'All metrics data successfully imported for {year}')
         except IntegrityError:
-            print('Metrics data failed to import')
+            print(f'Metrics data failed to import for {year}')
 
 
 def load_live_nyt():
@@ -173,7 +193,7 @@ def load_nyt_all_us():
     """
     EntireUS.objects.all().delete()
 
-    r = requests.get(nyt_all, stream=True)
+    r = requests.get(nyt_all, stream=True, timeout=5)
     size = 0
     content = io.BytesIO()
     num_chunks = 0

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from vid.get_data import load_metrics, load_nyt_all_us, cache_pages
+from vid.get_data import load_metrics, load_nyt_all_us, cache_pages, CURRENT_YEAR, PREVIOUS_YEARS
 
 
 class Command(BaseCommand):
@@ -13,9 +13,22 @@ class Command(BaseCommand):
             help='Run refresh locally',
         )
 
+        # Named (optional) arguments
+        parser.add_argument(
+            '--previous_years',
+            action='store_true',
+            help='download data for a previous year instead of the current year',
+        )
+
     def handle(self, *args, **options):
-        # load NYT deaths and cases
-        load_metrics()
+        # load NYT county deaths and cases
+        if options['previous_years']:
+            for year in PREVIOUS_YEARS:
+                load_metrics(year)
+        else:
+            load_metrics()
+
+        # the full us data
         load_nyt_all_us()
 
         # render and cache pages
